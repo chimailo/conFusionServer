@@ -4,6 +4,12 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const mongoose = require('mongoose');
+var session = require('express-session');
+var FileStore = require('session-file-store')(session);
+var passport = require('passport');
+
+var config = require('./config');
+const data = require('./db.json');
 
 // routes
 var indexRouter = require('./routes/index');
@@ -14,11 +20,11 @@ const leaderRouter = require('./routes/leaders');
 
 // models
 const Dishes = require('./models/dishes');
-
-const url =
-  'mongodb+srv://confusion:password.@confusion.fovbv.mongodb.net/conFusion?retryWrites=true&w=majority';
+const Promotions = require('./models/promotions');
+const Leaders = require('./models/leaders');
 
 const app = express();
+const url = config.mongoUrl;
 const connect = mongoose.connect(url);
 
 connect.then(
@@ -38,7 +44,18 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(
+  session({
+    name: 'session-id',
+    secret: '12345-67890-09876-54321',
+    saveUninitialized: false,
+    resave: false,
+    store: new FileStore(),
+  })
+);
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
