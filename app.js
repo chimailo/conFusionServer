@@ -1,12 +1,12 @@
-var createError = require('http-errors');
-var express = require('express');
 var path = require('path');
+var createError = require('http-errors');
+var passport = require('passport');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const mongoose = require('mongoose');
+var express = require('express');
 var session = require('express-session');
 var FileStore = require('session-file-store')(session);
-var passport = require('passport');
 
 var config = require('./config');
 const data = require('./db.json');
@@ -17,6 +17,7 @@ var usersRouter = require('./routes/users');
 const dishRouter = require('./routes/dishes');
 const promoRouter = require('./routes/promo');
 const leaderRouter = require('./routes/leaders');
+const uploadRouter = require('./routes/upload');
 
 // models
 const Dishes = require('./models/dishes');
@@ -35,6 +36,18 @@ connect.then(
     console.log(err);
   }
 );
+
+// Secure traffic only
+app.all('*', (req, res, next) => {
+  if (req.secure) {
+    return next();
+  } else {
+    res.redirect(
+      307,
+      'https://' + req.hostname + ':' + app.get('secPort') + req.url
+    );
+  }
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -62,6 +75,7 @@ app.use('/users', usersRouter);
 app.use('/dishes', dishRouter);
 app.use('/promotions', promoRouter);
 app.use('/leaders', leaderRouter);
+app.use('/imageUpload', uploadRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
