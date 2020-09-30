@@ -1,6 +1,7 @@
 const express = require('express');
 const Leaders = require('../models/leaders');
 var authenticate = require('../authenticate');
+const cors = require('./cors');
 
 const leadersRouter = express.Router();
 

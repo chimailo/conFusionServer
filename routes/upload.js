@@ -1,7 +1,9 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const authenticate = require('../authenticate');
 const multer = require('multer');
+const bodyParser = require('body-parser');
+
+const authenticate = require('../authenticate');
+const cors = require('./cors');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
